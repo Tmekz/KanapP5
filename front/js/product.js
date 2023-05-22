@@ -57,8 +57,9 @@ const controlQuantity = () => {
 // Jouer la fonction de control quantité
 quantity.addEventListener("keyup", controlQuantity);
 quantity.addEventListener("keydown", (event) => {
-  // Empêche la saisie de la virgule ou du point
-  if (event.key === "." || event.key === ",") {
+  // Empêche la saisie de certains caractères
+  const forbiddenKeys = [".", ",", "-", "+"];
+  if (forbiddenKeys.includes(event.key)) {
     event.preventDefault();
   }
 });
