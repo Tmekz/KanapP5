@@ -26,7 +26,7 @@ const mapLocalStorage = () => {
       <div class="cart__item__content__settings">
         <div class="cart__item__content__settings__quantity">
           <p>Qté :</p>
-          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${product.quantity} data-product-id="${product.id}">
+          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${product.quantity}>
         </div>
         <div class="cart__item__content__settings__delete">
           <p class="deleteItem">Supprimer</p>
@@ -45,7 +45,7 @@ const emptyCart = () => {
   cartSection.style.display = "none";
 };
 
-// Création d'une fonction pour afficher la quantité totale des produits
+// Création d'une fonction pour afficher la quantité totale des articles
 const displayTotalQuantity = () => {
   let total = 0;
   for (let i = 0; i < produitSaved.length; i++) {
@@ -59,34 +59,62 @@ const updateQuantityItems = () => {
   const itemsQuantity = document.querySelectorAll(".itemQuantity");
   itemsQuantity.forEach((input) => {
     input.addEventListener("change", (event) => {
-      const productId = event.target.dataset.productId;
-      const newQuantity = parseInt(event.target.value);
+      const itemId = input.closest(".cart__item").dataset.id;
+      const itemColor = input.closest(".cart__item").dataset.color;
+      const newQuantity = parseInt(input.value);
+
+      // Mise à jour le local storage avec la nouvelle quantité
       produitSaved = produitSaved.map((product) => {
-        if (product.id === productId) {
+        if (product.id === itemId && product.color === itemColor) {
           product.quantity = newQuantity;
         }
         return product;
       });
+      localStorage.setItem("product", JSON.stringify(produitSaved));
+
+      // Mise à jour de l'affichage du prix et des quantitées
       displayTotalQuantity();
       displayTotalPrice();
+    });
+  });
+};
+
+// Création d'une fonction pour supprimer un élément au click
+const deleteItem = () => {
+  const deleteItemElements = document.querySelectorAll(".deleteItem");
+
+  deleteItemElements.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const cartItem = button.closest(".cart__item");
+      const itemId = cartItem.dataset.id;
+      const itemColor = cartItem.dataset.color;
+
+      // Supprimer l'élément correspondant du local storage
+      produitSaved = produitSaved.filter((product) => {
+        return !(product.id === itemId && product.color === itemColor);
+      });
+
+      // Mettre à jour le local storage
       localStorage.setItem("product", JSON.stringify(produitSaved));
+
+      // Supprimer l'élément de l'affichage
+      cartItem.remove();
+
+      // Mettre à jour l'affichage total de la quantité et du prix
+      displayTotalQuantity();
+      displayTotalPrice();
     });
   });
 };
 
 // Création d'une fonction pour afficher le prix total
 const displayTotalPrice = () => {
-  totalPrice.textContent = calculateTotalPrice();
-};
-
-// Création d'une fonction pour mettre à jour le prix total
-const calculateTotalPrice = () => {
-  let totalPrice = 0;
+  let totalPriceData = 0;
   for (let i = 0; i < produitSaved.length; i++) {
     const product = produitSaved[i];
-    totalPrice += product.price * product.quantity;
+    totalPriceData += product.price * product.quantity;
   }
-  return totalPrice;
+  totalPrice.textContent = totalPriceData;
 };
 
 // Création d'une fonction pour vérifier que les quantités tappées soient bien entre 1 et 100 (pas de virgules ou points et pas de nombre négatif)
@@ -112,39 +140,12 @@ const controlQuantity = () => {
   });
 };
 
-const deleteItem = () => {
-  const deleteItemElement = document.querySelectorAll(".deleteItem");
-
-  // Ajouter un gestionnaire d'événements à deleteItemElement
-  deleteItemElement.forEach((button) => {
-    button.addEventListener("click", () => {
-      console.log("test test");
-    });
-  });
-
-  // // Création d'une fonction pour supprimer un produit du panier
-  // const deleteCartItem = (productId) => {
-  //   produitSaved = produitSaved.filter((product) => product.id !== productId);
-  //   localStorage.setItem("product", JSON.stringify(produitSaved));
-  //   mapLocalStorage(); // Mettre à jour l'affichage des produits
-  //   displayTotalQuantity(); // Mettre à jour la quantité totale
-  //   displayTotalPrice(); // Mettre à jour le prix total
-  // };
-
-  // deleteItemElement.addEventListener("click", (event) => {
-  //   const cartItem = event.target.closest(".cart__item");
-  //   if (cartItem) {
-  //     const productId = cartItem.dataset.id;
-  //     deleteCartItem(productId);
-  //   }
-  // });
-};
 // Création d'une fonction qui joue les différentes fonctions au chargement de la page
-const launchPage = async () => {
-  if (produitSaved == null) {
+const launchPage = () => {
+  if (produitSaved == null || produitSaved.length == 0) {
     emptyCart();
   } else {
-    await mapLocalStorage();
+    mapLocalStorage();
     displayTotalQuantity();
     displayTotalPrice();
     updateQuantityItems();
@@ -154,3 +155,29 @@ const launchPage = async () => {
 };
 
 window.addEventListener("load", launchPage);
+
+// // Création d'une fonction pour supprimer un produit du panier
+// const deleteCartItem = (productId) => {
+//   produitSaved = produitSaved.filter((product) => product.id !== productId);
+//   localStorage.setItem("product", JSON.stringify(produitSaved));
+//   mapLocalStorage(); // Mettre à jour l'affichage des produits
+//   displayTotalQuantity(); // Mettre à jour la quantité totale
+//   displayTotalPrice(); // Mettre à jour le prix total
+// };
+
+// deleteItemElement.addEventListener("click", (event) => {
+//   const cartItem = event.target.closest(".cart__item");
+//   if (cartItem) {
+//     const productId = cartItem.dataset.id;
+//     deleteCartItem(productId);
+//   }
+// });
+
+// const updateQuantityItems = () => {
+//   const itemsQuantity = document.querySelectorAll(".itemQuantity");
+//   itemsQuantity.forEach((input) => {
+//     input.addEventListener("change", (e) => {
+
+//     });
+//   });
+// };
