@@ -105,10 +105,10 @@ const saveToCart = () => {
     id: productId,
     quantity: quantityValue,
     color: colorsValue,
-    name: productIdData.name,
-    imageUrl: productIdData.imageUrl,
-    price: productIdData.price,
-    altTxt: productIdData.altTxt,
+    // name: productIdData.name,
+    // imageUrl: productIdData.imageUrl,
+    // price: productIdData.price,
+    // altTxt: productIdData.altTxt,
   };
 
   if (produitSaved) {

@@ -7,12 +7,57 @@ const cartSection = document.querySelector("section.cart");
 const totalQuantity = document.getElementById("totalQuantity");
 const totalPrice = document.getElementById("totalPrice");
 const formOrder = document.querySelector(".cart__order__form");
-let firstname, lastname, adress, city, email;
+const formInputs = document.querySelectorAll(
+  ` input[type="text"], input[type="email"] `
+);
+const emailRegex = /^[\w_-]+@[\w-]+\.[a-z]{2,4}$/i;
+const lettersRegex = /^[a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,31}$/i;
+const lettersNumbersRegex = /^(?=.*\d{5})[a-zA-Z0-9\s\,\'.À-ÖØ-öø-ÿ]*$/;
+let firstName, lastName, address, city, email;
 let produitSaved = JSON.parse(localStorage.getItem("product"));
+let fetchData = [];
+let fusionedData = [];
+let mergedProduct = [];
+
+const searchProduct = async () => {
+  await fetch("http://localhost:3000/api/products/")
+    .then((res) => res.json())
+    .then((data) => (fetchData = data))
+    .catch((error) => {
+      console.log("Erreur de connexion avec le serveur : ", error);
+      window.alert("Connexion au serveur impossible !");
+    });
+};
+
+// Création d'une fonction pour créer un tableau qui fusionne les données du local storage + BDD en fonction de l'id produit
+const dataArrayFusion = async () => {
+  if (produitSaved != null) {
+    produitSaved.forEach(function (item) {
+      // Rechercher le produit correspondant à l'ID dans les données de la base de données
+      let product = fetchData.find(function (productItem) {
+        return productItem._id === item.id;
+      });
+
+      let mergedProduct = {
+        id: item.id,
+        quantity: item.quantity,
+        color: item.color,
+        name: product.name,
+        price: product.price,
+        altTxt: product.altTxt,
+        imageUrl: product.imageUrl,
+        description: product.description,
+      };
+
+      // Ajouter le produit fusionné au tableau fusionedData
+      fusionedData.push(mergedProduct);
+    });
+  }
+};
 
 // Création d'une fonction pour afficher les produits enregistrés dans le local storage
 const mapLocalStorage = () => {
-  cartItems.innerHTML = produitSaved
+  cartItems.innerHTML = fusionedData
     .map(
       (product) =>
         `
@@ -60,10 +105,22 @@ const displayTotalQuantity = () => {
 // Création d'une fonction pour afficher le prix total
 const displayTotalPrice = () => {
   let totalPriceData = 0;
-  for (let i = 0; i < produitSaved.length; i++) {
-    const product = produitSaved[i];
-    totalPriceData += product.price * product.quantity;
+
+  for (let i = 0; i < fusionedData.length; i++) {
+    const productPrice = fusionedData[i].price;
+    const productId = fusionedData[i].id;
+
+    // Trouver le produit correspondant dans le tableau des produits enregistrés
+    const savedProduct = produitSaved.find(
+      (product) => product.id === productId
+    );
+
+    if (savedProduct) {
+      const productQuantity = savedProduct.quantity;
+      totalPriceData += productPrice * productQuantity;
+    }
   }
+
   totalPrice.textContent = totalPriceData
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
@@ -117,14 +174,14 @@ const deleteItem = () => {
       } else {
         // Sinon, mettre à jour le localStorage avec les éléments restants
         localStorage.setItem("product", JSON.stringify(produitSaved));
+
+        // Supprimer l'élément de l'affichage
+        cartItem.remove();
+
+        // Mettre à jour l'affichage total de la quantité et du prix
+        displayTotalQuantity();
+        displayTotalPrice();
       }
-
-      // Supprimer l'élément de l'affichage
-      cartItem.remove();
-
-      // Mettre à jour l'affichage total de la quantité et du prix
-      displayTotalQuantity();
-      displayTotalPrice();
     });
   });
 };
@@ -165,47 +222,40 @@ const errorDisplay = (tag, message, valid) => {
 
 // Création d'une fonction pour checker les inputs du formulaire
 const checkForm = () => {
-  const formInputs = document.querySelectorAll(
-    `input[type="text"],input[type="email"]`
-  );
-  const emailRegex = /^[\w_-]+@[\w-]+\.[a-z]{2,4}$/i;
-  const lettersRegex = /^[a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,31}$/i;
-  const lettersNumbersRegex = /^(?=.*\d{5})[a-zA-Z0-9\s\,\'.À-ÖØ-öø-ÿ]*$/;
-
   const firstNameChecker = (value) => {
-    if (value.length < 2 || value.length > 30) {
+    if (value.length < 2 || value.length > 50) {
       errorDisplay(
         "firstName",
-        "Le prénom doit mesurer entre 2 et 30 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
+        "Le prénom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
       );
       firstName = null;
     } else if (!value.match(lettersRegex)) {
       errorDisplay(
         "firstName",
-        "Le prénom doit mesurer entre 2 et 30 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
+        "Le prénom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
       );
       firstName = null;
     } else {
       errorDisplay("firstName", "", true);
-      firstname = value;
+      firstName = value;
     }
   };
   const lastNameChecker = (value) => {
-    if (value.length < 2 || value.length > 30) {
+    if (value.length < 2 || value.length > 50) {
       errorDisplay(
         "lastName",
-        "Le nom doit mesurer entre 2 et 30 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
+        "Le nom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
       );
-      lastname = null;
+      lastName = null;
     } else if (!value.match(lettersRegex)) {
       errorDisplay(
         "lastName",
-        "Le prénom doit mesurer entre 2 et 30 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
+        "Le prénom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
       );
-      lastname = null;
+      lastName = null;
     } else {
       errorDisplay("lastName", "", true);
-      lastname = value;
+      lastName = value;
     }
   };
   const adressChecker = (value) => {
@@ -227,16 +277,16 @@ const checkForm = () => {
     }
   };
   const villeChecker = (value) => {
-    if (value.length < 2 || value.length > 30) {
+    if (value.length < 2 || value.length > 45) {
       errorDisplay(
         "city",
-        "La ville doit mesurer entre 2 et 30 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux. Merci d'indiquer votre code postal dans l'adresse."
+        "La ville doit mesurer entre 2 et 45 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux. Merci d'indiquer votre code postal dans l'adresse."
       );
       city = null;
     } else if (!value.match(lettersRegex)) {
       errorDisplay(
         "city",
-        "La ville doit mesurer entre 2 et 30 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux. Merci d'indiquer votre code postal dans l'adresse."
+        "La ville doit mesurer entre 2 et 45 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux. Merci d'indiquer votre code postal dans l'adresse."
       );
       city = null;
     } else {
@@ -283,28 +333,45 @@ const checkForm = () => {
   });
 };
 
-// // Création d'une fonction pour subit la commande
-// const submitForm = () => {
-//   formOrder.addEventListener("submit", (event) => {
-//     event.preventDefault();
-//     console.log(firstname);
+// Création d'une fonction pour submit la commande
+const submitForm = () => {
+  formOrder.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-//     if (firstname === true) {
-//       const data = {
-//         firstname,
-//       };
-//       console.log(data);
-//     } else {
-//       console.log("test");
-//     }
-//   });
-// };
+    if (firstName && lastName && address && city && email) {
+      const contact = {
+        firstName,
+        lastName,
+        address,
+        city,
+        email,
+      };
+
+      const productDetails = [];
+      produitSaved.forEach(function (element) {
+        const id = element.id;
+        const quantity = element.quantity;
+        const color = element.color;
+        const productDetail = { id: id, quantity: quantity, color: color };
+        productDetails.push(productDetail);
+      });
+
+      // Créer l'objet de données à envoyer dans la requête POST
+      const data = {
+        contact: contact,
+        products: productDetails,
+      };
+    }
+  });
+};
 
 // Création d'une fonction qui joue les différentes fonctions au chargement de la page
-const launchPage = () => {
+const launchPage = async () => {
   if (produitSaved == null) {
     emptyCart();
   } else {
+    await searchProduct();
+    dataArrayFusion();
     mapLocalStorage();
     displayTotalQuantity();
     displayTotalPrice();
