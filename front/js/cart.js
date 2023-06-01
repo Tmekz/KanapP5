@@ -325,32 +325,67 @@ const checkForm = () => {
 const submitForm = () => {
   formOrder.addEventListener("submit", (event) => {
     event.preventDefault();
-
     if (firstName && lastName && address && city && email) {
-      const contact = {
-        firstName,
-        lastName,
-        address,
-        city,
-        email,
+      
+
+      // Créer d'un tableau avec les IDS des produits
+      // SEULEMENT LES ID OU EGALEMENT LES QUANTITES ET COULEURS ?
+      // const productDetails = [];
+      // produitSaved.forEach(function (element) {
+      //   const id = element.id;
+      //   const quantity = element.quantity;
+      //   const color = element.color;
+      //   const productDetail = { id: id, quantity: quantity, color: color };
+      //   // const productDetail = { id: id };
+      //   productDetails.push(productDetail);
+      // });
+
+      // Création d'un objet avec les détails du client
+      const contactForm = {
+        contact: {
+          firstName,
+          lastName,
+          address,
+          city,
+          email,
+        },
+        // Récupération des ID des produits commandés
+        products: listIDs(),
       };
 
-      const productDetails = [];
-      produitSaved.forEach(function (element) {
-        const id = element.id;
-        const quantity = element.quantity;
-        const color = element.color;
-        const productDetail = { id: id, quantity: quantity, color: color };
-        productDetails.push(productDetail);
-      });
-
-      // Créer l'objet de données à envoyer dans la requête POST
-      const data = {
-        contact: contact,
-        products: productDetails,
-      };
+      // Envoi de la requête POST
+      postOrder(contactForm);
     }
   });
+};
+
+// Création d'une fonction qui récupère les IDS des produits du local storage
+function listIDs() {
+  let ids = [];
+  for (let i = 0; i < produitSaved.length; i++) {
+    ids.push(produitSaved[i].id);
+  }
+  return ids;
+}
+
+// Création d'une fonction pour fetcher l'API et envoyer la requête POST
+const postOrder = async (contactForm) => {
+  await fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    body: JSON.stringify(contactForm),
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const orderId = data.orderId;
+      console.log(orderId);
+      console.log(data);
+      // window.location.href = "confirmation.html?orderId=" + orderId;
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("erreur: " + err);
+    });
 };
 
 // Création d'une fonction qui joue les différentes fonctions au chargement de la page
