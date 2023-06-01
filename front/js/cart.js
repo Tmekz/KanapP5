@@ -69,7 +69,7 @@ const mapLocalStorage = () => {
       <div class="cart__item__content__description">
         <h2>${product.name}</h2>
         <p>${product.color}</p>
-        <p>${product.price}€</p>
+        <p id="kaka">${product.price}€</p>
       </div>
       <div class="cart__item__content__settings">
         <div class="cart__item__content__settings__quantity">
@@ -104,26 +104,14 @@ const displayTotalQuantity = () => {
 
 // Création d'une fonction pour afficher le prix total
 const displayTotalPrice = () => {
-  let totalPriceData = 0;
-
-  for (let i = 0; i < fusionedData.length; i++) {
-    const productPrice = fusionedData[i].price;
-    const productId = fusionedData[i].id;
-
-    // Trouver le produit correspondant dans le tableau des produits enregistrés
-    const savedProduct = produitSaved.find(
-      (product) => product.id === productId
-    );
-
-    if (savedProduct) {
-      const productQuantity = savedProduct.quantity;
-      totalPriceData += productPrice * productQuantity;
-    }
+  let total = 0;
+  for (let i = 0; i < produitSaved.length; i++) {
+    total +=
+      parseInt(fusionedData[i].price) * parseInt(produitSaved[i].quantity);
+    totalPrice.textContent = parseInt(total)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   }
-
-  totalPrice.textContent = totalPriceData
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 };
 
 // Création d'une fonction pour mettre à jour la quantité dans le local storage et dans l'affichage
@@ -250,7 +238,7 @@ const checkForm = () => {
     } else if (!value.match(lettersRegex)) {
       errorDisplay(
         "lastName",
-        "Le prénom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
+        "Le nom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
       );
       lastName = null;
     } else {

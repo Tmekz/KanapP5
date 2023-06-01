@@ -77,7 +77,7 @@ const confirmationAddCart = () => {
   addToCart.textContent = "Panier ajouté !";
   setTimeout(() => {
     addToCart.textContent = "Ajouter au panier";
-  }, 1300);
+  }, 450);
 };
 
 // Création d'un évènnement pour lancer la sauvegarde du panier lors du click sur le bouton "ajouter au panier"
