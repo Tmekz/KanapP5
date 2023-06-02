@@ -11,26 +11,25 @@ const formInputs = document.querySelectorAll(
   ` input[type="text"], input[type="email"] `
 );
 const emailRegex = /^[\w_-]+@[\w-]+\.[a-z]{2,4}$/i;
-const lettersRegex = /^[a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,31}$/i;
-const lettersNumbersRegex = /^(?=.*\d{5})[a-zA-Z0-9\s\,\'.À-ÖØ-öø-ÿ]*$/;
+const lettersRegex = /^[a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s'-]{1,31}$/i;
+const lettersNumbersRegex = /^(?=.*\d{5})[a-zA-Z0-9\s\,\'.À-ÖØ-öø-ÿ-]*$/;
 let firstName, lastName, address, city, email;
 let produitSaved = JSON.parse(localStorage.getItem("product"));
-let fetchData = [];
 let fusionedData = [];
 let mergedProduct = [];
 
-const searchProduct = async () => {
-  await fetch("http://localhost:3000/api/products/")
-    .then((res) => res.json())
-    .then((data) => (fetchData = data))
-    .catch((error) => {
-      console.log("Erreur de connexion avec le serveur : ", error);
-      window.alert("Connexion au serveur impossible !");
-    });
+/**
+ * Création d'une fonction pour afficher un message si le panier est vide
+ */
+const emptyCart = () => {
+  h1Element.textContent = "Votre panier est vide";
+  cartSection.style.display = "none";
 };
 
-// Création d'une fonction pour créer un tableau qui fusionne les données du local storage + BDD en fonction de l'id produit
-const dataArrayFusion = async () => {
+/**
+ * Création d'une fonction pour créer un tableau qui fusionne les données du local storage + BDD en fonction de l'id produit
+ */
+const dataArrayFusion = () => {
   if (produitSaved != null) {
     produitSaved.forEach(function (item) {
       // Rechercher le produit correspondant à l'ID dans les données de la base de données
@@ -55,7 +54,9 @@ const dataArrayFusion = async () => {
   }
 };
 
-// Création d'une fonction pour afficher les produits enregistrés dans le local storage
+/**
+ * Création d'une fonction pour afficher les produits du panier enregistrés dans le local storage
+ */
 const mapLocalStorage = () => {
   cartItems.innerHTML = fusionedData
     .map(
@@ -87,13 +88,9 @@ const mapLocalStorage = () => {
     .join("");
 };
 
-// Création d'une fonction pour afficher un message si le panier est vide
-const emptyCart = () => {
-  h1Element.textContent = "Votre panier est vide";
-  cartSection.style.display = "none";
-};
-
-// Création d'une fonction pour afficher la quantité totale des articles
+/**
+ * Création d'une fonction pour afficher la quantité totale des articles
+ */
 const displayTotalQuantity = () => {
   let total = 0;
   for (let i = 0; i < produitSaved.length; i++) {
@@ -102,7 +99,9 @@ const displayTotalQuantity = () => {
   }
 };
 
-// Création d'une fonction pour afficher le prix total
+/**
+ * Création d'une fonction pour afficher le prix total
+ */
 const displayTotalPrice = () => {
   let total = 0;
   for (let i = 0; i < produitSaved.length; i++) {
@@ -114,7 +113,9 @@ const displayTotalPrice = () => {
   }
 };
 
-// Création d'une fonction pour mettre à jour la quantité dans le local storage et dans l'affichage
+/**
+ * Création d'une fonction pour mettre à jour la quantité dans le local storage et dans l'affichage
+ */
 const updateQuantityItems = () => {
   const itemsQuantity = document.querySelectorAll(".itemQuantity");
   itemsQuantity.forEach((input) => {
@@ -139,7 +140,9 @@ const updateQuantityItems = () => {
   });
 };
 
-// Création d'une fonction pour supprimer un élément au click
+/**
+ * Création d'une fonction pour supprimer un élément au click
+ */
 const deleteItem = () => {
   const deleteItemElements = document.querySelectorAll(".deleteItem");
 
@@ -156,7 +159,7 @@ const deleteItem = () => {
 
       // Mettre à jour le localStorage
       if (produitSaved.length === 0) {
-        // Si tous les éléments ont été supprimés, vider complètement le localStorage
+        // Si tous les éléments ont été supprimé, vider complètement le localStorage
         localStorage.removeItem("product");
         emptyCart(); // Appeler emptyCart si le localStorage est vide
       } else {
@@ -174,7 +177,9 @@ const deleteItem = () => {
   });
 };
 
-// Création d'une fonction pour vérifier que les quantités tappées soient bien entre 1 et 100 (pas de virgules ou points et pas de nombre négatif)
+/**
+ * Création d'une fonction pour vérifier que les quantités tappées soient bien entre 1 et 100 (pas de virgules ou points et pas de nombre négatif)
+ */
 const controlQuantity = () => {
   const itemsQuantity = document.querySelectorAll(".itemQuantity");
   itemsQuantity.forEach((input) => {
@@ -197,7 +202,9 @@ const controlQuantity = () => {
   });
 };
 
-// Création d'une fonction qui regroupe la logique du checker form
+/**
+ * Création d'une fonction qui regroupe la logique du checker form
+ */
 const errorDisplay = (tag, message, valid) => {
   const errorFormMessage = document.getElementById(tag + "ErrorMsg");
 
@@ -208,16 +215,12 @@ const errorDisplay = (tag, message, valid) => {
   }
 };
 
-// Création d'une fonction pour checker les inputs du formulaire
+/**
+ * Création d'une fonction pour checker les inputs du formulaire et afficher un message d'érreur si besoin
+ */
 const checkForm = () => {
   const firstNameChecker = (value) => {
-    if (value.length < 2 || value.length > 50) {
-      errorDisplay(
-        "firstName",
-        "Le prénom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
-      );
-      firstName = null;
-    } else if (!value.match(lettersRegex)) {
+    if (value.length < 2 || value.length > 50 || !value.match(lettersRegex)) {
       errorDisplay(
         "firstName",
         "Le prénom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
@@ -229,13 +232,7 @@ const checkForm = () => {
     }
   };
   const lastNameChecker = (value) => {
-    if (value.length < 2 || value.length > 50) {
-      errorDisplay(
-        "lastName",
-        "Le nom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
-      );
-      lastName = null;
-    } else if (!value.match(lettersRegex)) {
+    if (value.length < 2 || value.length > 50 || !value.match(lettersRegex)) {
       errorDisplay(
         "lastName",
         "Le nom doit mesurer entre 2 et 50 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux"
@@ -247,13 +244,11 @@ const checkForm = () => {
     }
   };
   const adressChecker = (value) => {
-    if (value.length < 10 || value.length > 100) {
-      errorDisplay(
-        "address",
-        "L'adresse doit contenir entre 10 et 100 caractères et ne peut contenir certains caractères spéciaux. De plus merci d'indiquer ici votre code postal."
-      );
-      address = null;
-    } else if (!value.match(lettersNumbersRegex)) {
+    if (
+      value.length < 10 ||
+      value.length > 100 ||
+      !value.match(lettersNumbersRegex)
+    ) {
       errorDisplay(
         "address",
         "L'adresse doit contenir entre 10 et 100 caractères et ne peut contenir certains caractères spéciaux. De plus merci d'indiquer ici votre code postal."
@@ -265,13 +260,7 @@ const checkForm = () => {
     }
   };
   const villeChecker = (value) => {
-    if (value.length < 2 || value.length > 45) {
-      errorDisplay(
-        "city",
-        "La ville doit mesurer entre 2 et 45 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux. Merci d'indiquer votre code postal dans l'adresse."
-      );
-      city = null;
-    } else if (!value.match(lettersRegex)) {
+    if (value.length < 2 || value.length > 45 || !value.match(lettersRegex)) {
       errorDisplay(
         "city",
         "La ville doit mesurer entre 2 et 45 caractères et ne peut contenir aucuns chiffres ou caractères spéciaux. Merci d'indiquer votre code postal dans l'adresse."
@@ -321,25 +310,15 @@ const checkForm = () => {
   });
 };
 
-// Création d'une fonction pour submit la commande
+/**
+ * Création d'une fonction pour submit la commande
+ */
 const submitForm = () => {
   formOrder.addEventListener("submit", (event) => {
-    event.preventDefault();
+    // event.preventDefault(); (si l'évaluateur veut voir la réponse du submit voir ligne 344)
+
+    // Check si tous les champs du formulaire sont valides
     if (firstName && lastName && address && city && email) {
-      
-
-      // Créer d'un tableau avec les IDS des produits
-      // SEULEMENT LES ID OU EGALEMENT LES QUANTITES ET COULEURS ?
-      // const productDetails = [];
-      // produitSaved.forEach(function (element) {
-      //   const id = element.id;
-      //   const quantity = element.quantity;
-      //   const color = element.color;
-      //   const productDetail = { id: id, quantity: quantity, color: color };
-      //   // const productDetail = { id: id };
-      //   productDetails.push(productDetail);
-      // });
-
       // Création d'un objet avec les détails du client
       const contactForm = {
         contact: {
@@ -359,7 +338,9 @@ const submitForm = () => {
   });
 };
 
-// Création d'une fonction qui récupère les IDS des produits du local storage
+/**
+ * Création d'une fonction qui récupère les IDS des produits du local storage
+ */
 function listIDs() {
   let ids = [];
   for (let i = 0; i < produitSaved.length; i++) {
@@ -368,7 +349,9 @@ function listIDs() {
   return ids;
 }
 
-// Création d'une fonction pour fetcher l'API et envoyer la requête POST
+/**
+ * Création d'une fonction pour fetcher l'API et envoyer la requête POST
+ */
 const postOrder = async (contactForm) => {
   await fetch("http://localhost:3000/api/products/order", {
     method: "POST",
@@ -378,9 +361,10 @@ const postOrder = async (contactForm) => {
     .then((res) => res.json())
     .then((data) => {
       const orderId = data.orderId;
-      console.log(orderId);
-      console.log(data);
-      // window.location.href = "confirmation.html?orderId=" + orderId;
+      // Si l'évaluateur veut voir la réponse
+      // console.log(orderId);
+      // console.log(data);
+      window.location.href = "confirmation.html?orderId=" + orderId;
     })
     .catch((err) => {
       console.error(err);
@@ -388,12 +372,14 @@ const postOrder = async (contactForm) => {
     });
 };
 
-// Création d'une fonction qui joue les différentes fonctions au chargement de la page
+/**
+ * Création d'une fonction qui joue les différentes fonctions au chargement de la page
+ */
 const launchPage = async () => {
   if (produitSaved == null) {
     emptyCart();
   } else {
-    await searchProduct();
+    await callApi("http://localhost:3000/api/products/");
     dataArrayFusion();
     mapLocalStorage();
     displayTotalQuantity();
