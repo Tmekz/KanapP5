@@ -317,7 +317,7 @@ const submitForm = () => {
   formOrder.addEventListener("submit", (event) => {
     // event.preventDefault(); (si l'évaluateur veut voir la réponse du submit voir ligne 344)
 
-    // Check si tous les champs du formulaire sont valides
+    // Check si tous les champs du formulaire sont true
     if (firstName && lastName && address && city && email) {
       // Création d'un objet avec les détails du client
       const contactForm = {
@@ -392,4 +392,5 @@ const launchPage = async () => {
   }
 };
 
+// Création d'un event pour lancer launchPage au chargement de la page
 window.addEventListener("load", launchPage);

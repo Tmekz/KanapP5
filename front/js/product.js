@@ -8,7 +8,7 @@ const quantity = document.getElementById("quantity");
 let productId = new URLSearchParams(window.location.search).get("id");
 
 /**
- * Création d'une fonction pour afficher les détails du produit
+ * Création d'une fonction pour afficher les détails du produit en fonction de son ID
  */
 const getProduct = async () => {
   await callApi("http://localhost:3000/api/products/" + productId);
@@ -18,6 +18,7 @@ const getProduct = async () => {
   price.textContent = fetchData.price;
   description.textContent = fetchData.description;
 
+  // On va afficher ici les différentes couleurs du produit
   for (let i = 0; i < fetchData.colors.length; i++) {
     colorsChoice(fetchData.colors[i]);
     quantity.value = "1";
@@ -25,7 +26,7 @@ const getProduct = async () => {
 };
 
 /**
- * Création d'une fonction pour choisir une couleur dans la liste déroulante
+ * Création d'une fonction qui va créer les options de couleur dans la liste déroulante 
  */
 const colorsChoice = (choice) => {
   const addColorOption = document.createElement("option");
@@ -62,7 +63,7 @@ quantity.addEventListener("keydown", (event) => {
 });
 
 /**
- * Création d'une fonction pour vérifier qu'une couleur soit choisie
+ * Création d'une fonction pour vérifier qu'une couleur soit choisie sinon message d'alerte
  */
 const controlColor = () => {
   const colorsValue = colors.value;

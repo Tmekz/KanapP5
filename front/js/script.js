@@ -1,5 +1,5 @@
 /**
- * Création fonction pour afficher les données
+ * Création fonction pour afficher les données de l'API
  */
 const displayKanap = async () => {
   await callApi("http://localhost:3000/api/products/");
@@ -15,8 +15,6 @@ const displayKanap = async () => {
             </article>
         </a>`;
   }
-/* Hello */
-
   //   items.innerHTML = fetchData
   //     .map(
   //       (product) =>
@@ -33,4 +31,5 @@ const displayKanap = async () => {
   //     .join("");
 };
 
+// Création d'un event pour lancer displayKanap au chargement de la page
 window.addEventListener("load", displayKanap);
