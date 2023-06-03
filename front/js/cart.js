@@ -54,38 +54,88 @@ const dataArrayFusion = () => {
   }
 };
 
+// Création d'une fonction pour créer manuellement l'élements article avec tous les détails du produits à afficher
+const createDivArticle = () => {
+  for (let i = 0; i < produitSaved.length; i++) {
+    // Création de l'article cart item
+    const article = document.createElement("article");
+    cartItems.appendChild(article);
+    article.dataset.id = produitSaved[i].id;
+    article.dataset.color = produitSaved[i].color;
+    article.textContent = fetchData[i].id;
+    article.classList.add("cart__item");
+
+    // Création de la div cart item img
+    const div = document.createElement("div");
+    div.classList.add("cart__item__img");
+    const image = document.createElement("img");
+    image.src = fusionedData[i].imageUrl;
+    image.alt = fusionedData[i].altTxt;
+    div.appendChild(image);
+    article.appendChild(div);
+
+    // Création de la div cart item content
+    const articleDescription = document.createElement("div");
+    articleDescription.classList.add("cart__item__content");
+    // Création de la div cart item description
+    article.appendChild(articleDescription);
+    const articleDescriptionBis = document.createElement("div");
+    articleDescriptionBis.classList.add("cart__item__content__description");
+    articleDescription.appendChild(articleDescriptionBis);
+
+    // Création du H2 P et P2 pour détails produits
+    const h2 = document.createElement("h2");
+    h2.textContent = fusionedData[i].name;
+    const p = document.createElement("p");
+    p.textContent = fusionedData[i].color;
+    const p2 = document.createElement("p");
+    p2.textContent = fusionedData[i].price + " €";
+    articleDescriptionBis.appendChild(h2);
+    articleDescriptionBis.appendChild(p);
+    articleDescriptionBis.appendChild(p2);
+
+    // Création de la div cart item content settings
+    const cartItemContentSettings = document.createElement("div");
+    cartItemContentSettings.classList.add("cart__item__content__settings");
+    articleDescription.appendChild(cartItemContentSettings);
+
+    // Création de la div cart item content settings quantity
+    const cartItemContentSettingsQuantity = document.createElement("div");
+    cartItemContentSettingsQuantity.classList.add(
+      "cart__item__content__settings__quantity"
+    );
+    cartItemContentSettings.appendChild(cartItemContentSettingsQuantity);
+
+    const p3 = document.createElement("p");
+    p3.textContent = "Qté :";
+
+    // Création de l'input quantity
+    const inputQuantity = document.createElement("input");
+    inputQuantity.type = "number";
+    inputQuantity.classList.add("itemQuantity");
+    inputQuantity.name = "itemQuantity";
+    inputQuantity.min = "1";
+    inputQuantity.max = "100";
+    inputQuantity.value = parseInt(produitSaved[i].quantity);
+    cartItemContentSettingsQuantity.appendChild(p3);
+    cartItemContentSettingsQuantity.appendChild(inputQuantity);
+
+    // Création du bouton supprimer
+    const divDelete = document.createElement("div");
+    divDelete.classList.add("cart__item__content__settings__delete");
+    cartItemContentSettings.appendChild(divDelete);
+    const p4 = document.createElement("p");
+    p4.classList.add("deleteItem");
+    p4.textContent = "Supprimer";
+    divDelete.appendChild(p4);
+  }
+};
+
 /**
  * Création d'une fonction pour afficher les produits du panier enregistrés dans le local storage
  */
-const mapLocalStorage = () => {
-  cartItems.innerHTML = fusionedData
-    .map(
-      (product) =>
-        `
-    <article class="cart__item" data-id="${product.id}" data-color="${product.color}">
-    <div class="cart__item__img">
-    <img src=${product.imageUrl} alt="${product.altTxt}">
-    </div>
-    <div class="cart__item__content">
-      <div class="cart__item__content__description">
-        <h2>${product.name}</h2>
-        <p>${product.color}</p>
-        <p>${product.price}€</p>
-      </div>
-      <div class="cart__item__content__settings">
-        <div class="cart__item__content__settings__quantity">
-          <p>Qté :</p>
-          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${product.quantity}>
-        </div>
-        <div class="cart__item__content__settings__delete">
-          <p class="deleteItem">Supprimer</p>
-        </div>
-      </div>
-    </div>
-  </article>
-`
-    )
-    .join("");
+const displayProductsDetails = () => {
+ createDivArticle();
 };
 
 /**
@@ -381,7 +431,7 @@ const launchPage = async () => {
   } else {
     await callApi("http://localhost:3000/api/products/");
     dataArrayFusion();
-    mapLocalStorage();
+    displayProductsDetails();
     displayTotalQuantity();
     displayTotalPrice();
     updateQuantityItems();
