@@ -70,7 +70,7 @@ const mapLocalStorage = () => {
       <div class="cart__item__content__description">
         <h2>${product.name}</h2>
         <p>${product.color}</p>
-        <p id="kaka">${product.price}€</p>
+        <p>${product.price}€</p>
       </div>
       <div class="cart__item__content__settings">
         <div class="cart__item__content__settings__quantity">
